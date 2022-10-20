@@ -13,10 +13,10 @@ if starting:
 	a_max = 1 + v.axisMax
 	a_min = -1 - v.axisMax
 	# mouse steering
-	m_sens = 9.5 # mouse sensitivity (higher faster)
-	m_redu = 6 # center reduction sensitivity, acceptable range 1-50, set to 1 to disable
+	m_sens = 6 # mouse sensitivity (higher faster)
+	m_redu = 1 # center reduction sensitivity, acceptable range 1-50, set to 1 to disable
 	steering = 0 # do not modify
-	center_redu = 1 # center reduction; init value, do not modify
+	center_redu = 3 # center reduction; init value, do not modify
 	# throttle
 	th_axis = a_min
 	th_inc = 2500 # increase speed (higher faster)
@@ -42,7 +42,7 @@ if starting:
 	stimer = 0 # shifting timer
 	t_upshift = 140 # minimum time required for next gear
 	# throttle limit
-	alimit = 0.8 # throttle limited at 90%; range 0.0-1.0; useful for cars without traction control under low gears
+	alimit = 0.65 # throttle limited at 90%; range 0.0-1.0; useful for cars without traction control under low gears
 	th_limit = a_max * 2 * alimit - a_max # calculation, do not modify
 	br_limit = a_max * 2 * alimit - a_max
 
@@ -84,7 +84,7 @@ if key_assists_off:
 
 #======== mouselock ========#
 if (mouselock):
-	user32.SetCursorPos(0 , 5000) # pixel coordinates (x, y)
+	user32.SetCursorPos(960 , 0) # pixel coordinates (x, y)
 
 #======== axis calculation ========#
 if (vjoyaxis):
