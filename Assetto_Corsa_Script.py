@@ -13,7 +13,7 @@ if starting:
 	a_max = 1 + v.axisMax
 	a_min = -1 - v.axisMax
 	# mouse steering
-	m_sens = 6 # mouse sensitivity (higher faster)
+	m_sens = 5 # mouse sensitivity (higher faster)
 	m_redu = 1 # center reduction sensitivity, acceptable range 1-50, set to 1 to disable
 	steering = 0 # do not modify
 	center_redu = 3 # center reduction; init value, do not modify
