@@ -2,8 +2,7 @@ from ctypes import *
 user32 = windll.user32
 
 if starting:
-	dflt_inc = 2000
-	slow_inc = 50
+	
 	# feature toggle
 	vjoyaxis = True
 	assists = True # auto throttle cut off & blip
@@ -14,14 +13,18 @@ if starting:
 	# vjoy axis range, do not modify
 	a_max = 1 + v.axisMax
 	a_min = -1 - v.axisMax
+	
 	# mouse steering
 	m_sens = 6 # mouse sensitivity (higher faster)
-	m_redu = 1 # center reduction sensitivity, acceptable range 1-50, set to 1 to disable
+	m_redu = 1.3 # center reduction sensitivity, acceptable range 1-50, set to 1 to disable
 	steering = 0 # do not modify
 	center_redu = 1 # center reduction; init value, do not modify
-
-	# throttle
 	
+	#Increment (throttle/brake speed)
+	dflt_inc = 250
+	slow_inc = 80
+	
+	# throttle
 	th_axis = a_min
 	th_max = a_max # for throttle limit
 
@@ -45,10 +48,7 @@ if starting:
 	# debouncing
 	stimer = 0 # shifting timer
 	t_upshift = 140 # minimum time required for next gear
-	# throttle limit
-	alimit = 0.7 # throttle limited at 90%; range 0.0-1.0; useful for cars without traction control under low gears
-	th_limit = a_max * 2 * alimit - a_max # calculation, do not modify
-	br_limit = a_max * 2 * alimit - a_max
+	
 
 #======== assign key here ========#
 # toggle
@@ -58,13 +58,13 @@ key_assists_on = keyboard.getKeyDown(Key.NumberPad1) or mouse.wheelUp
 key_assists_off = keyboard.getKeyDown(Key.NumberPad3) or mouse.wheelDown
 # vehicle control
 key_throttle = keyboard.getKeyDown(Key.W)
-key_brake = keyboard.getKeyDown(Key.S)
+key_brake = keyboard.getKeyDown(Key.S) or keyboard.getKeyDown(Key.D)
 key_handbrake = keyboard.getKeyDown(Key.Space)  
 key_clutch = keyboard.getKeyDown(Key.C)
 key_centerx = mouse.getButton(2) # center steering (x-axis)
 key_shiftup = keyboard.getKeyDown(Key.LeftShift) or mouse.getButton(4)
 key_shiftdown = keyboard.getKeyDown(Key.LeftControl) or mouse.getButton(3)
-# brake limit
+# axis limit
 ax_40 = keyboard.getPressed(Key.NumberPad4)
 ax_50 = keyboard.getPressed(Key.NumberPad5)
 ax_60 = keyboard.getPressed(Key.NumberPad6)
@@ -106,14 +106,40 @@ if (vjoyaxis):
 	if key_centerx:
 		steering = 0
 			
-#############################################
+    #########################################
+	def limit_status(limit):
+		with open("limit.txt","w") as file:
+			file.write(str(limit))
+	
+	# Axis limit
+	if ax_40:
+		limit_status(0.4)
+	if ax_50:
+		limit_status(0.5)
+	if ax_60:
+		limit_status(0.6)
+	if ax_70:
+		limit_status(0.7)
+	if ax_80:
+		limit_status(0.8)
+	if ax_90:
+		limit_status(0.9)
+	if no_bl:
+		limit_status(1)
+		
+	# throttle limited at 90%; range 0.0-1.0; useful for cars without traction control under low gears
+	with open("limit.txt","r") as file:
+		alimit = float(file.read())
+	th_limit = a_max * 2 * alimit - a_max # calculation, do not modify
+	br_limit = a_max * 2 * alimit - a_max
+	##########################################	
 	def throttle(key,inc):
 		global th_axis
 		global th_max
 		case_key = 0
 		if key == mouse.getButton(0):
 			case_key = 0
-		elif key == keyboard.getKeyDown(Key.W):
+		else:
 			case_key = 1
 
 		if case_key == 0:
@@ -132,7 +158,7 @@ if (vjoyaxis):
 		case_key = 0
 		if key == mouse.getButton(1):
 			case_key = 0
-		elif key == keyboard.getKeyDown(Key.S):
+		else:
 			case_key = 1
 
 		if case_key == 0:
@@ -220,22 +246,6 @@ if (vjoyaxis):
 			th_axis = a_min # throttle cut off while upshifting
 		if key_shiftdown:
 			th_axis = a_blip # throttle blip while downshifting
-			
-	# Axis limit
-	if ax_40:
-		ax_max = a_max * 0.4
-	if ax_50:
-		ax_max = a_max * 0.5
-	if ax_60:
-		ax_max = a_max * 0.6
-	if ax_70:
-		ax_max = a_max * 0.7
-	if ax_80:
-		ax_max = a_max * 0.8
-	if ax_90:
-		ax_max = a_max * 0.9
-	if no_bl:
-		ax_max = a_max
 		
 else: # reset axis position
 	steering = 0
@@ -280,11 +290,11 @@ else:
 # important note: diagnostics has big impact on cpu usage (about 50-80% more)
 # keep this section commented out, only uncomment for coding and testing
 #diagnostics.watch(v.x)	# steering
-diagnostics.watch(v.y)	# throttle
-diagnostics.watch(v.z)	# brake
+#diagnostics.watch(v.y)	# throttle
+#diagnostics.watch(v.z)	# brake
 #diagnostics.watch(v.ry)	# handbrake
 #diagnostics.watch(v.rx)	# clutch
-diagnostics.watch(v.axisMax)	# vjoy axis max range
+#diagnostics.watch(v.axisMax)	# vjoy axis max range
 #diagnostics.watch(stimer) # shifting timer
 
 #======== reference & example ========#
@@ -299,4 +309,4 @@ diagnostics.watch(v.axisMax)	# vjoy axis max range
 # most codes of "axis calculation" are borrowed from "Skagen", and others found in https://www.lfs.net/forum/post/1862759
 # the codes for locking mouse are from https://bytes.com/topic/python/answers/21158-mouse-control-python
 # misc codes and formating by threers
-# last update: 2018-08-10
+# last update: 2025-02-11
